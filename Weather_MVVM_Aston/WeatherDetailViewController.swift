@@ -10,18 +10,18 @@ import CoreLocation
 
 class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
     
-    var cities: [String] = []
-    var city: String = ""
-    var locationManager: CLLocationManager!
+    private var cities: [String] = []
+    private var city: String = ""
+    private var locationManager: CLLocationManager!
     
-    let backgroundImageView: UIImageView = {
+    private let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.contentMode = .scaleAspectFill
         return imageView
     }()
     
-    let cityLabel: UILabel = {
+    private let cityLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         label.textColor = UIColor.white
@@ -30,7 +30,8 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    let temperatureLabel: UILabel = {
+    
+    private let temperatureLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor.white
         label.font = UIFont.systemFont(ofSize: 92)
@@ -38,7 +39,8 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    let weatherLabel: UILabel = {
+    
+    private let weatherLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor.white
         label.numberOfLines = 0
@@ -46,7 +48,8 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    let maxTemperatureLabel: UILabel = {
+    
+    private let maxTemperatureLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor.white
         label.numberOfLines = 0
@@ -54,7 +57,8 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    let minTemperatureLabel: UILabel = {
+    
+    private let minTemperatureLabel: UILabel = {
         let label = UILabel()
         label.textColor = UIColor.white
         label.numberOfLines = 0
@@ -62,13 +66,15 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    let temperatureStackView: UIStackView = {
+    
+    private let temperatureStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
         stackView.spacing = 10
         return stackView
     }()
+    
     let searchTextField: UITextField = {
         let textfield = UITextField()
         textfield.translatesAutoresizingMaskIntoConstraints = false
@@ -76,7 +82,8 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         textfield.borderStyle = .roundedRect
         return textfield
     }()
-    let searchButton: UIButton = {
+    
+    private let searchButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Поиск", for: .normal)
@@ -86,27 +93,24 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         return button
     }()
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         backgroundImageView.image = UIImage(named: "backgroundWeatherApp")
         setupUI()
         setupNavigationBar()
-        locationManager = CLLocationManager()
-        locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
+        setupLocationManager()
     }
     
     private func setupNavigationBar() {
         let addButton = UIBarButtonItem(title: "Сохранить город", style: .plain, target: self, action: #selector(addCityButtonTapped))
+        addButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white], for: .normal)
         navigationItem.rightBarButtonItem = addButton
     }
-    
+
     func setupUI() {
         view.addSubview(backgroundImageView)
-        view.addSubview(temperatureLabel)
         view.addSubview(cityLabel)
+        view.addSubview(temperatureLabel)
         view.addSubview(weatherLabel)
         view.addSubview(temperatureStackView)
         view.addSubview(maxTemperatureLabel)
@@ -147,19 +151,21 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         ])
     }
     
-    
+    private func setupLocationManager() {
+        locationManager = CLLocationManager()
+        locationManager?.delegate = self
+        locationManager?.requestWhenInUseAuthorization()
+        locationManager?.startUpdatingLocation()
+    }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
         
-        // Получаем координаты местоположения
         let latitude = location.coordinate.latitude
         let longitude = location.coordinate.longitude
         
-        // Создаем URL для запроса к API с использованием полученных координат
         guard let weatherURL = URL(string: "https://api.openweathermap.org/data/2.5/weather?lat=\(latitude)&lon=\(longitude)&appid=\(WeatherServices.ApiKey)&units=\(Units.metric)") else { return }
         
-        // Выполняем запрос и обработку данных
         NetworkServiceManager.shared.fetchData(from: weatherURL) { [weak self] data, _, error in
             guard let self = self else { return }
             if let error = error {
@@ -181,7 +187,6 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
     }
-    
     
     func fetchWeatherData() {
         guard let weatherURL = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=\(city)&appid=\(WeatherServices.ApiKey)&units=\(Units.metric)") else { return }
@@ -234,23 +239,33 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
     
     @objc func addCityButtonTapped() {
         let cityName = cityLabel.text ?? ""
-        addCityToCityList(cityName)
-        saveCitiesToUserDefaults()
         
-        if let tabBarController = self.tabBarController,
-           let cityListNavigationController = tabBarController.viewControllers?[1] as? UINavigationController,
-           let cityListViewController = cityListNavigationController.topViewController as? CityListTableViewController {
-            cityListViewController.cities.append(cityName)
-            cityListViewController.saveCitiesToUserDefaults()
-            cityListViewController.tableView.reloadData()
+        // Check if the city is already in the cities array
+        if !cities.contains(cityName) {
+            addCityToCityList(cityName)
+            saveCitiesToUserDefaults()
+            
+            if let tabBarController = self.tabBarController,
+               let cityListNavigationController = tabBarController.viewControllers?[1] as? UINavigationController,
+               let cityListViewController = cityListNavigationController.topViewController as? CityListTableViewController {
+                cityListViewController.cities.append(cityName)
+                cityListViewController.saveCitiesToUserDefaults()
+                cityListViewController.tableView.reloadData()
+            }
+        } else {
+            print("The city is already in the list.")
         }
     }
-    
+
     
     @objc func searchButtonTapped() {
         locationManager.stopUpdatingLocation()
         guard let searchCity = searchTextField.text else { return }
         city = searchCity
-        fetchWeatherData() // Выполняем поиск погоды для введенного города
+        fetchWeatherData()
+        searchTextField.text = ""
     }
 }
+
+
+

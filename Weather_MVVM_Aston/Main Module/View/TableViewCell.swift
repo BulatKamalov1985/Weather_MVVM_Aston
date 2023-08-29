@@ -49,7 +49,7 @@ class CityTableViewCell: UITableViewCell {
     }
     
     private func fetchTemperature(for cityName: String) {
-        guard let weatherURL = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=\(cityName)&appid=26618735c7ba0b57efcbcd83f461098e&units=metric") else { return }
+        guard let weatherURL = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=\(cityName)&appid=\(WeatherServices.ApiKey)&units=\(Units.metric)") else { return }
         
         NetworkServiceManager.shared.fetchData(from: weatherURL) { [weak self] data, _, error in
             guard let self = self else { return }
