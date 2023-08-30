@@ -12,7 +12,7 @@ class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
     
     // MARK: - Properties
     
-    private var cities: [String] = []
+    var cities: [String] = []
     var city: String = ""
     var locationManager: CLLocationManager?
     
@@ -107,6 +107,11 @@ class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
         setupUI()
         setupNavigationBar()
         setupLocationManager()
+    }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        loadCitiesFromUserDefaults()
     }
     
     // MARK: - Private Methods
@@ -237,6 +242,13 @@ class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
     func saveCitiesToUserDefaults() {
         UserDefaults.standard.set(cities, forKey: "CityList")
     }
+    
+    private func loadCitiesFromUserDefaults() {
+        if let savedCities = UserDefaults.standard.array(forKey: "CityList") as? [String] {
+            cities = savedCities
+        }
+    }
+
     
     func updateLabels(with weather: Weather) {
         let cityName = weather.name

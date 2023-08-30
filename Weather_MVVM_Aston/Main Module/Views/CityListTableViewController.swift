@@ -19,6 +19,7 @@ class CityListTableViewController: UITableViewController {
         super.viewDidLoad()
         setupTableView()
         loadCitiesFromUserDefaults()
+    
     }
 
     // MARK: - TableView Setup
@@ -45,6 +46,20 @@ class CityListTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+           if editingStyle == .delete {
+               let deletedCity = cities.remove(at: indexPath.row)
+               saveCitiesToUserDefaults()
+               tableView.deleteRows(at: [indexPath], with: .fade)
+               
+               // Обновление cities в WeatherMainViewController
+               if let weatherMainViewController = presentingViewController as? WeatherMainViewController {
+                   weatherMainViewController.cities = cities
+                   weatherMainViewController.saveCitiesToUserDefaults()
+               }
+           }
+       }
 
     // MARK: - Data Handling
     
