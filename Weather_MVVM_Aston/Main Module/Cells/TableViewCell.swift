@@ -13,14 +13,26 @@ class CityTableViewCell: UITableViewCell {
     
     static var reuseIdentifier: String { "\(Self.self)" }
     
-    let cityNameLabel = UILabel()
-    let temperatureLabel = UILabel()
+    private let cityNameLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.boldSystemFont(ofSize: 16)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let temperatureLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     // MARK: - Initialization
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupUI()
+        setupSelectionStyle()
     }
 
     required init?(coder: NSCoder) {
@@ -37,10 +49,7 @@ class CityTableViewCell: UITableViewCell {
     // MARK: - UI Setup
     
     private func setupUI() {
-        cityNameLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(cityNameLabel)
-        
-        temperatureLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(temperatureLabel)
         
         NSLayoutConstraint.activate([
@@ -50,6 +59,12 @@ class CityTableViewCell: UITableViewCell {
             temperatureLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             temperatureLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
+    }
+    
+    private func setupSelectionStyle() {
+        let selectionView = UIView()
+        selectionView.backgroundColor = UIColor(white: 0.9, alpha: 1.0)
+        selectedBackgroundView = selectionView
     }
     
     // MARK: - Data Fetching

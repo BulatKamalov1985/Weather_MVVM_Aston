@@ -13,8 +13,11 @@ class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
     // MARK: - Properties
     
     var cities: [String] = []
-    var city: String = ""
-    var locationManager: CLLocationManager?
+    private var city: String = ""
+    private var locationManager: CLLocationManager?
+    private var saveButton: UIBarButtonItem!
+    
+
     
     // MARK: - UI Elements
     
@@ -107,11 +110,13 @@ class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
         setupUI()
         setupNavigationBar()
         setupLocationManager()
+        searchTextField.delegate = self
     }
     
     
     override func viewWillAppear(_ animated: Bool) {
         loadCitiesFromUserDefaults()
+
     }
     
     // MARK: - Private Methods
@@ -123,12 +128,13 @@ class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     private func setupNavigationBar() {
-        let addButton = UIBarButtonItem(title: "Сохранить город", style: .plain, target: self, action: #selector(addCityButtonTapped))
-        addButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white], for: .normal)
-        navigationItem.rightBarButtonItem = addButton
+        saveButton = UIBarButtonItem(title: "Сохранить город", style: .plain, target: self, action: #selector(addCityButtonTapped))
+        saveButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white], for: .normal)
+        navigationItem.rightBarButtonItem = saveButton
     }
 
-    func setupUI() {
+
+    private func setupUI() {
         view.addSubview(backgroundImageView)
         view.addSubview(temperatureLabel)
         view.addSubview(cityLabel)
@@ -211,7 +217,7 @@ class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     
-    func fetchWeatherData() {
+    private func fetchWeatherData() {
         guard let weatherURL = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=\(city)&appid=\(WeatherServices.ApiKey)&units=\(Units.metric)") else { return }
         
         NetworkServiceManager.shared.fetchData(from: weatherURL) { [weak self] data, _, error in
@@ -235,7 +241,7 @@ class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
     
-    func addCityToCityList(_ city: String) {
+    private func addCityToCityList(_ city: String) {
             cities.append(city)
     }
     
@@ -266,30 +272,50 @@ class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
     
     // MARK: - Button Actions
     
-    @objc func addCityButtonTapped() {
-        let cityName = cityLabel.text ?? ""
-        
-        if !cities.contains(cityName) {
-            addCityToCityList(cityName)
-            saveCitiesToUserDefaults()
-            
-            if let tabBarController = self.tabBarController,
-               let cityListNavigationController = tabBarController.viewControllers?[1] as? UINavigationController,
-               let cityListViewController = cityListNavigationController.topViewController as? CityListTableViewController {
-                cityListViewController.cities.append(cityName)
-                cityListViewController.saveCitiesToUserDefaults()
-                cityListViewController.tableView.reloadData()
+    private func textFieldDidChange(_ textField: UITextField, newText: String) {
+            if !newText.isEmpty {
+                saveButton.title = "Сохранить город"
+                saveButton.isEnabled = true
+            } else {
+                saveButton.title = "Город сохранен"
+                saveButton.isEnabled = false
             }
-        } else {
-            print("The city is already in the list.")
         }
-    }
+    
+    @objc private func addCityButtonTapped() {
+            let cityName = cityLabel.text ?? ""
+            
+            if !cities.contains(cityName) {
+                addCityToCityList(cityName)
+                saveCitiesToUserDefaults()
+                
+                if let tabBarController = self.tabBarController,
+                   let cityListNavigationController = tabBarController.viewControllers?[1] as? UINavigationController,
+                   let cityListViewController = cityListNavigationController.topViewController as? CityListTableViewController {
+                    cityListViewController.cities.append(cityName)
+                    cityListViewController.saveCitiesToUserDefaults()
+                    cityListViewController.tableView.reloadData()
+                }
+            } else {
+                print("The city is already in the list.")
+            }
+            textFieldDidChange(searchTextField, newText: "")
+        }
 
-    @objc func searchButtonTapped() {
+    @objc private func searchButtonTapped() {
         locationManager?.stopUpdatingLocation()
         guard let searchCity = searchTextField.text else { return }
         city = searchCity
         fetchWeatherData()
         searchTextField.text = ""
+    }
+}
+
+
+extension WeatherMainViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let newText = (textField.text as NSString?)?.replacingCharacters(in: range, with: string) ?? ""
+        textFieldDidChange(textField, newText: newText)
+        return true
     }
 }
