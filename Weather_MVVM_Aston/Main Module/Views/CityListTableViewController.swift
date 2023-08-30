@@ -9,18 +9,28 @@ import UIKit
 
 class CityListTableViewController: UITableViewController {
     
+    // MARK: - Properties
+    
     var cities: [String] = []
 
+    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.register(CityTableViewCell.self, forCellReuseIdentifier: CityTableViewCell.reuseIdentifier)
+        setupTableView()
         loadCitiesFromUserDefaults()
     }
 
+    // MARK: - TableView Setup
+    
+    private func setupTableView() {
+        tableView.register(CityTableViewCell.self, forCellReuseIdentifier: CityTableViewCell.reuseIdentifier)
+    }
+
+    // MARK: - TableView Data Source
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(cities)
         return cities.count
-        
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -29,8 +39,16 @@ class CityListTableViewController: UITableViewController {
         cell.configure(cityName: cityName)
         return cell
     }
+    
+    // MARK: - TableView Delegate
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 
-    func loadCitiesFromUserDefaults() {
+    // MARK: - Data Handling
+    
+    private func loadCitiesFromUserDefaults() {
         if let savedCities = UserDefaults.standard.array(forKey: "CityList") as? [String] {
             cities = savedCities
         }
@@ -40,3 +58,4 @@ class CityListTableViewController: UITableViewController {
         UserDefaults.standard.set(cities, forKey: "CityList")
     }
 }
+

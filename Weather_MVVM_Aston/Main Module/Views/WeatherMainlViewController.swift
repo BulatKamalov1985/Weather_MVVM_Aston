@@ -8,11 +8,15 @@
 import UIKit
 import CoreLocation
 
-class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
+class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
+    
+    // MARK: - Properties
     
     private var cities: [String] = []
-    private var city: String = ""
-    private var locationManager: CLLocationManager!
+    var city: String = ""
+    var locationManager: CLLocationManager?
+    
+    // MARK: - UI Elements
     
     private let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
@@ -93,12 +97,24 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         return button
     }()
     
+    
+    // MARK: - View Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        loadSavedCities()
         backgroundImageView.image = UIImage(named: "backgroundWeatherApp")
         setupUI()
         setupNavigationBar()
         setupLocationManager()
+    }
+    
+    // MARK: - Private Methods
+    
+    private func loadSavedCities() {
+        if let savedCities = UserDefaults.standard.array(forKey: "CityList") as? [String] {
+            cities = savedCities
+        }
     }
     
     private func setupNavigationBar() {
@@ -109,8 +125,8 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
 
     func setupUI() {
         view.addSubview(backgroundImageView)
-        view.addSubview(cityLabel)
         view.addSubview(temperatureLabel)
+        view.addSubview(cityLabel)
         view.addSubview(weatherLabel)
         view.addSubview(temperatureStackView)
         view.addSubview(maxTemperatureLabel)
@@ -121,7 +137,6 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         temperatureStackView.addArrangedSubview(minTemperatureLabel)
     
         NSLayoutConstraint.activate([
-            
             backgroundImageView.topAnchor.constraint(equalTo: view.topAnchor),
             backgroundImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             backgroundImageView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
@@ -152,11 +167,13 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     private func setupLocationManager() {
-        locationManager = CLLocationManager()
-        locationManager?.delegate = self
-        locationManager?.requestWhenInUseAuthorization()
-        locationManager?.startUpdatingLocation()
-    }
+            locationManager = CLLocationManager()
+            locationManager?.delegate = self
+            locationManager?.requestWhenInUseAuthorization()
+            locationManager?.startUpdatingLocation()
+        }
+    
+    // MARK: - CLLocationManagerDelegate
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let location = locations.last else { return }
@@ -188,6 +205,7 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
     
+    
     func fetchWeatherData() {
         guard let weatherURL = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=\(city)&appid=\(WeatherServices.ApiKey)&units=\(Units.metric)") else { return }
         
@@ -204,7 +222,6 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
                     let weather = try decoder.decode(Weather.self, from: data)
                     DispatchQueue.main.async {
                         self.updateLabels(with: weather)
-                        self.addCityToCityList(self.city)
                     }
                 } catch {
                     print("Error decoding JSON: \(error)")
@@ -214,9 +231,7 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
     }
     
     func addCityToCityList(_ city: String) {
-        if !cities.contains(city) {
             cities.append(city)
-        }
     }
     
     func saveCitiesToUserDefaults() {
@@ -237,10 +252,11 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         temperatureLabel.text = "\(Int(temperature))°"
     }
     
+    // MARK: - Button Actions
+    
     @objc func addCityButtonTapped() {
         let cityName = cityLabel.text ?? ""
         
-        // Check if the city is already in the cities array
         if !cities.contains(cityName) {
             addCityToCityList(cityName)
             saveCitiesToUserDefaults()
@@ -257,15 +273,11 @@ class WeatherDetailViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
 
-    
     @objc func searchButtonTapped() {
-        locationManager.stopUpdatingLocation()
+        locationManager?.stopUpdatingLocation()
         guard let searchCity = searchTextField.text else { return }
         city = searchCity
         fetchWeatherData()
         searchTextField.text = ""
     }
 }
-
-
-

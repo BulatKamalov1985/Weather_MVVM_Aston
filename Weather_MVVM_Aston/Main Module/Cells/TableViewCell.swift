@@ -9,10 +9,14 @@ import UIKit
 
 class CityTableViewCell: UITableViewCell {
     
-    static let reuseIdentifier = "CityTableViewCell"
+    // MARK: - Properties
+    
+    static var reuseIdentifier: String { "\(Self.self)" }
     
     let cityNameLabel = UILabel()
     let temperatureLabel = UILabel()
+    
+    // MARK: - Initialization
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -23,22 +27,22 @@ class CityTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Configuration
+    
     func configure(cityName: String) {
         cityNameLabel.text = cityName
-        // Загрузка температуры и ее отображение
         fetchTemperature(for: cityName)
     }
     
+    // MARK: - UI Setup
+    
     private func setupUI() {
-        // Добавляем UILabel для отображения названия города
         cityNameLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(cityNameLabel)
         
-        // Добавляем UILabel для отображения температуры
         temperatureLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(temperatureLabel)
         
-        // Определяем констрейнты для cityNameLabel и temperatureLabel
         NSLayoutConstraint.activate([
             cityNameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             cityNameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
@@ -47,6 +51,8 @@ class CityTableViewCell: UITableViewCell {
             temperatureLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
     }
+    
+    // MARK: - Data Fetching
     
     private func fetchTemperature(for cityName: String) {
         guard let weatherURL = URL(string: "https://api.openweathermap.org/data/2.5/weather?q=\(cityName)&appid=\(WeatherServices.ApiKey)&units=\(Units.metric)") else { return }

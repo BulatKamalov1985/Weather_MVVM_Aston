@@ -17,14 +17,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let tabBarController = UITabBarController()
         
-        let mainViewController = WeatherDetailViewController()
+        let mainViewController = WeatherMainViewController()
         let weatherTableViewController = CityListTableViewController()
         
         let navigationController1 = UINavigationController(rootViewController: mainViewController)
         let navigationController2 = UINavigationController(rootViewController: weatherTableViewController)
         
-        navigationController1.tabBarItem = UITabBarItem(tabBarSystemItem: .more, tag: 0)
-        navigationController2.tabBarItem = UITabBarItem(tabBarSystemItem: .history, tag: 1)
+        navigationController1.tabBarItem = UITabBarItem(title: "Main", image: UIImage(systemName: "sun.max"), selectedImage: nil)
+        navigationController2.tabBarItem = UITabBarItem(title: "City List", image: UIImage(systemName: "list.bullet"), selectedImage: nil)
         
         tabBarController.viewControllers = [navigationController1, navigationController2]
         
@@ -33,6 +33,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()
     }
+
     
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
