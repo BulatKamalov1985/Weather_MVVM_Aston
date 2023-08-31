@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CityListTableViewController: UITableViewController {
+final class CityListTableViewController: UITableViewController {
     
     // MARK: - Properties
     

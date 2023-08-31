@@ -8,17 +8,15 @@
 import UIKit
 import CoreLocation
 
-class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
+final class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
     
     // MARK: - Properties
     
     var cities: [String] = []
     private var city: String = ""
     private var locationManager: CLLocationManager?
-    private var saveButton: UIBarButtonItem!
-    
-
-    
+    private var saveButton: UIBarButtonItem?
+        
     // MARK: - UI Elements
     
     private let backgroundImageView: UIImageView = {
@@ -129,10 +127,9 @@ class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
     
     private func setupNavigationBar() {
         saveButton = UIBarButtonItem(title: "Сохранить город", style: .plain, target: self, action: #selector(addCityButtonTapped))
-        saveButton.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white], for: .normal)
+        saveButton?.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white], for: .normal)
         navigationItem.rightBarButtonItem = saveButton
     }
-
 
     private func setupUI() {
         view.addSubview(backgroundImageView)
@@ -274,11 +271,11 @@ class WeatherMainViewController: UIViewController, CLLocationManagerDelegate {
     
     private func textFieldDidChange(_ textField: UITextField, newText: String) {
             if !newText.isEmpty {
-                saveButton.title = "Сохранить город"
-                saveButton.isEnabled = true
+                saveButton?.title = "Сохранить город"
+                saveButton?.isEnabled = true
             } else {
-                saveButton.title = "Город сохранен"
-                saveButton.isEnabled = false
+                saveButton?.title = "Город сохранен"
+                saveButton?.isEnabled = false
             }
         }
     
