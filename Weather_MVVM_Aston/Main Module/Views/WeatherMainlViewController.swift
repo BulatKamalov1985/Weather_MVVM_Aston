@@ -285,7 +285,7 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
             if !cities.contains(cityName) {
                 addCityToCityList(cityName)
                 saveCitiesToUserDefaults()
-                handleSuccess(city)
+                handleResult(city, isSuccess: true)
                 
                 if let tabBarController = self.tabBarController,
                    let cityListNavigationController = tabBarController.viewControllers?[1] as? UINavigationController,
@@ -296,20 +296,24 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
                 }
             } else {
                 print("The city is already in the list.")
-                handleError(city)
+                handleResult(city, isSuccess: false)
             }
             textFieldDidChange(searchTextField, newText: "")
         }
     
-    func handleSuccess(_ city: String) {
-        let ac = UIAlertController(title: "Отлично!", message: "Город \(city) удачно сохранен", preferredStyle: .alert)
-        let cancel = UIAlertAction(title: "Ok", style: .default)
-        ac.addAction(cancel)
-        self.present(ac, animated: true)
-    }
-    
-    func handleError(_ city: String) {
-        let ac = UIAlertController(title: "Извините!", message: "Город \(city) уже есть в списке", preferredStyle: .alert)
+    func handleResult(_ city: String, isSuccess: Bool) {
+        let title: String
+        let message: String
+        
+        if isSuccess {
+            title = "Отлично!"
+            message = "Город \(city) удачно сохранен"
+        } else {
+            title = "Извините!"
+            message = "Город \(city) уже есть в списке"
+        }
+        
+        let ac = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let cancel = UIAlertAction(title: "Ok", style: .default)
         ac.addAction(cancel)
         self.present(ac, animated: true)
