@@ -126,7 +126,7 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
     }
     
     private func setupNavigationBar() {
-        saveButton = UIBarButtonItem(title: "Сохранить город", style: .plain, target: self, action: #selector(addCityButtonTapped))
+        saveButton = UIBarButtonItem(title: "Save city", style: .plain, target: self, action: #selector(addCityButtonTapped))
         saveButton?.setTitleTextAttributes([NSAttributedString.Key.foregroundColor: UIColor.white], for: .normal)
         navigationItem.rightBarButtonItem = saveButton
     }
@@ -271,10 +271,10 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
     
     private func textFieldDidChange(_ textField: UITextField, newText: String) {
             if !newText.isEmpty {
-                saveButton?.title = "Сохранить город"
+                saveButton?.title = "Save city"
                 saveButton?.isEnabled = true
             } else {
-                saveButton?.title = "Город сохранен"
+                saveButton?.title = "City saved"
                 saveButton?.isEnabled = false
             }
         }
@@ -285,6 +285,7 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
             if !cities.contains(cityName) {
                 addCityToCityList(cityName)
                 saveCitiesToUserDefaults()
+                handleSuccess(city)
                 
                 if let tabBarController = self.tabBarController,
                    let cityListNavigationController = tabBarController.viewControllers?[1] as? UINavigationController,
@@ -295,9 +296,24 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
                 }
             } else {
                 print("The city is already in the list.")
+                handleError(city)
             }
             textFieldDidChange(searchTextField, newText: "")
         }
+    
+    func handleSuccess(_ city: String) {
+        let ac = UIAlertController(title: "Отлично!", message: "Город \(city) удачно сохранен", preferredStyle: .alert)
+        let cancel = UIAlertAction(title: "Ok", style: .default)
+        ac.addAction(cancel)
+        self.present(ac, animated: true)
+    }
+    
+    func handleError(_ city: String) {
+        let ac = UIAlertController(title: "Извините!", message: "Город \(city) уже есть в списке", preferredStyle: .alert)
+        let cancel = UIAlertAction(title: "Ok", style: .default)
+        ac.addAction(cancel)
+        self.present(ac, animated: true)
+    }
 
     @objc private func searchButtonTapped() {
         locationManager?.stopUpdatingLocation()
