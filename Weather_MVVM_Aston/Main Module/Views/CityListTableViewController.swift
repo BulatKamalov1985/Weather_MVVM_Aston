@@ -11,7 +11,11 @@ final class CityListTableViewController: UITableViewController {
     
     // MARK: - Properties
     
-    var cities: [String] = []
+    var cities: [String] = [] {
+        didSet {
+            print(cities)
+        }
+    }
 
     // MARK: - Lifecycle
     
@@ -49,11 +53,10 @@ final class CityListTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
            if editingStyle == .delete {
-               _ = cities.remove(at: indexPath.row)
+               cities.remove(at: indexPath.row)
                saveCitiesToUserDefaults()
                tableView.deleteRows(at: [indexPath], with: .fade)
                
-               // Обновление cities в WeatherMainViewController
                if let weatherMainViewController = presentingViewController as? WeatherMainViewController {
                    weatherMainViewController.cities = cities
                    weatherMainViewController.saveCitiesToUserDefaults()

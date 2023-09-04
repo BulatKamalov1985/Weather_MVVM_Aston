@@ -32,12 +32,14 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
         label.textColor = UIColor.white
         label.font = UIFont.systemFont(ofSize: 32)
         label.textAlignment = .center
+        label.text = "--"
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     private let temperatureLabel: UILabel = {
         let label = UILabel()
+        label.text = "--"
         label.textColor = UIColor.white
         label.font = UIFont.systemFont(ofSize: 92)
         label.textAlignment = .center
@@ -47,6 +49,7 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
     
     private let weatherLabel: UILabel = {
         let label = UILabel()
+        label.text = "--"
         label.textColor = UIColor.white
         label.numberOfLines = 0
         label.textAlignment = .center
@@ -56,6 +59,7 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
     
     private let maxTemperatureLabel: UILabel = {
         let label = UILabel()
+        label.text = "--"
         label.textColor = UIColor.white
         label.numberOfLines = 0
         label.textAlignment = .right
@@ -65,6 +69,7 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
     
     private let minTemperatureLabel: UILabel = {
         let label = UILabel()
+        label.text = "--"
         label.textColor = UIColor.white
         label.numberOfLines = 0
         label.textAlignment = .left
@@ -111,10 +116,8 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
         searchTextField.delegate = self
     }
     
-    
     override func viewWillAppear(_ animated: Bool) {
         loadCitiesFromUserDefaults()
-
     }
     
     // MARK: - Private Methods
@@ -204,7 +207,6 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
                     let weather = try decoder.decode(Weather.self, from: data)
                     DispatchQueue.main.async {
                         self.updateLabels(with: weather)
-                        self.addCityToCityList(self.city)
                     }
                 } catch {
                     print("Error decoding JSON: \(error)")
@@ -240,6 +242,7 @@ final class WeatherMainViewController: UIViewController, CLLocationManagerDelega
     
     private func addCityToCityList(_ city: String) {
             cities.append(city)
+        print("1vc\(cities)")
     }
     
     func saveCitiesToUserDefaults() {

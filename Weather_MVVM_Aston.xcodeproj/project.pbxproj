@@ -74,9 +74,9 @@
 		3951BEE32A962C1F00CDF3F9 /* Main Module */ = {
 			isa = PBXGroup;
 			children = (
+				3951BEED2A9F738400CDF3F9 /* Services */,
 				3951BEE62A962D3C00CDF3F9 /* Views */,
 				3951BEEE2A9F74EE00CDF3F9 /* Cells */,
-				3951BEED2A9F738400CDF3F9 /* Services */,
 				3951BEE52A962D0E00CDF3F9 /* Models */,
 			);
 			path = "Main Module";
